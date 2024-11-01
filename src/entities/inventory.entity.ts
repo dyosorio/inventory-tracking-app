@@ -1,0 +1,1 @@
+//Inventory entity to be defined
