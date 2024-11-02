@@ -12,6 +12,14 @@ export class InventoryService {
   ) {}
 
   async updateInventory(updateInventoryDto: UpdateInventoryDto): Promise<void> {
-    // To be implemented
+    const { productId, regionId, allocation, allocationTimestamp } = updateInventoryDto;
+
+    const existingInventory = await this.inventoryRepository.findOne({
+        where: {
+            product: { id: productId },
+            region: { id: regionId }
+        },
+        relations: ['product, region'],
+    })
   }
 }

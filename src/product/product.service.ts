@@ -10,5 +10,12 @@ export class ProductService {
     private productRepository: Repository<Product>,
   ) {}
 
-  //Methods for product management to be implemented
+  async addProduct(productData: Partial<Product>): Promise<Product> {
+    const product = this.productRepository.create(productData);
+    return this.productRepository.save(product);
+  }
+
+  async getAllProducts(): Promise<Product[]> {
+    return this.productRepository.find();
+  }
 }

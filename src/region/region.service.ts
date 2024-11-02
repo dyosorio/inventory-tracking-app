@@ -10,5 +10,12 @@ export class RegionService {
     private regionRepository: Repository<Region>,
   ) {}
 
-  //Methods for region management to be implemented
+  async addRegion(regionData: Partial<Region>): Promise<Region> {
+    const region = this.regionRepository.create(regionData);
+    return this.regionRepository.save(region);
+  }
+
+  async getAllRegions(): Promise<Region[]> {
+    return this.regionRepository.find();
+  }
 }
