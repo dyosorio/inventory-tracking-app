@@ -6,10 +6,15 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2021",
+    "target": "ES2017",
+    "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./dist",
+    "esModuleInterop": true,
     "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
