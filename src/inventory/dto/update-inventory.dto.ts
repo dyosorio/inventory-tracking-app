@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsUUID, IsInt, IsNotEmpty, IsDate } from 'class-validator';
 
 export class UpdateInventoryDto {
@@ -17,6 +18,7 @@ export class UpdateInventoryDto {
   allocation: number;
 
   @ApiProperty({ description: 'The timestamp for the allocation' })
+  @Type(() => Date)
   @IsDate()
   allocationTimestamp: Date;
 }

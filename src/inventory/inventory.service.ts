@@ -19,7 +19,14 @@ export class InventoryService {
             product: { id: productId },
             region: { id: regionId }
         },
-        relations: ['product, region'],
-    })
+        relations: ['product', 'region'],
+    });
+    if (existingInventory) {
+        existingInventory.allocation = allocation;
+        existingInventory.allocationTimestamp = allocationTimestamp;
+        await this.inventoryRepository.save(existingInventory);
+    } else {
+        throw new Error('Inventory entry not found');
+    }
   }
 }
