@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Inventory } from 'src/entities/inventory.entity';
@@ -22,18 +22,25 @@ export class InventoryService {
         relations: ['product', 'region'],
     });
     if (existingInventory) {
-        existingInventory.allocation = allocation;
-        existingInventory.allocationTimestamp = allocationTimestamp;
-        await this.inventoryRepository.save(existingInventory);
+      if (allocation < 0) {
+        throw new BadRequestException('Allocation must be a non-negative number.');
+
+      }
+      existingInventory.allocation = allocation;
+      existingInventory.allocationTimestamp = allocationTimestamp;
+      await this.inventoryRepository.save(existingInventory);
     } else {
-        existingInventory = this.inventoryRepository.create({
-            product: { id: productId } as any, // Cast to 'any' to bypass type checking
-            region: { id: regionId } as any, // Cast to 'any' to bypass type checking
-            allocation,
-            allocationTimestamp,
-        });
-        await this.inventoryRepository.save(existingInventory);
-        // throw new Error('Inventory entry not found');
+      if (allocation < 0) {
+        throw new BadRequestException('Allocation must be a non-negative number.');
+      }
+
+      existingInventory = this.inventoryRepository.create({
+        product: { id: productId } as any, 
+        region: { id: regionId } as any, 
+        allocation,
+        allocationTimestamp: allocationTimestamp || new Date(),
+      });
+      await this.inventoryRepository.save(existingInventory);
     }
   }
 
