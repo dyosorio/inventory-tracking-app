@@ -23,14 +23,7 @@ async function bootstrap() {
     const products = [
         { name: 'VARSITY EMBROIDERED CARDIGAN RED', description: 'Bold, vintage-inspired charm' },
         { name: 'MEDWAY JUMPER MID BLUE', description: 'Timeless comfort with a modern twist' },
-        { name: 'CASHMERE BLEND STRIPED TURTLENECK SWEATER NATURAL', description: 'Luxuriously soft with classic stripes' },
-        { name: 'BOUCLE JUMPER VANILLA', description: 'Effortlessly Chic!' },
-        { name: 'TURTLENECK KNITS BRIGHT OCEAN', description: 'Vibrant warmth' },
-        { name: 'BABYSOFT HIGH NECK SEAM RED', description: 'Silky comfort' },
-        { name: 'BABYSOFT RIB MOCK NECK JUMPER MARINE', description: 'Naturally soft' },
-        { name: 'TEXTURED BRETON STRIPE CARDIGAN BRETON STRIPE', description: 'Classic stripes with cozy texture' },
-        { name: 'RIB CREW SWEATER TRAVERTINE', description: 'Romantic, cozy elegance' },
-        { name: 'KIMBERLY OATMEAL', description: 'Wholesome comfort, soft like overnight oats' },
+        { name: 'CASHMERE BLEND STRIPED TURTLENECK SWEATER NATURAL', description: 'Soft with classic stripes' },
     ];
 
     const productEntities = [];
@@ -49,6 +42,9 @@ async function bootstrap() {
             });
         }
     }
+
+    // await inventoryService.clearAllInventory(); 
+    // await productService.clearAllProducts(); 
 
     console.log('Seeding completed');
     await app.close();

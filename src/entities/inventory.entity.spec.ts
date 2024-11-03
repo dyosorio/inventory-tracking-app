@@ -32,11 +32,21 @@ describe('Inventory Entity', () => {
 
   it('should throw an error if the decrease amount is greater than the current allocation', () => {
     expect(() => inventory.decreaseStock(150)).toThrowError('Stock cannot be negative.');
-  });
+  });  
 
   it('should throw an error if the decrease amount is zero or negative', () => {
     expect(() => inventory.decreaseStock(0)).toThrowError('Decrease amount must be greater than zero.');
     expect(() => inventory.decreaseStock(-10)).toThrowError('Decrease amount must be greater than zero.');
+  });
+
+  it('should increase the allocation correctly', () => {
+    inventory.increaseStock(50);
+    expect(inventory.allocation).toBe(150);
+  });
+
+  it('should throw an error if the increase amount is zero or negative', () => {
+    expect(() => inventory.increaseStock(0)).toThrowError('Increase amount must be greater than zero.');
+    expect(() => inventory.increaseStock(-10)).toThrowError('Increase amount must be greater than zero.');
   });
 
   it('should update the allocation correctly', () => {

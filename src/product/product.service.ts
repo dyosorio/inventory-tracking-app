@@ -18,4 +18,8 @@ export class ProductService {
   async getAllProducts(): Promise<Product[]> {
     return this.productRepository.find();
   }
+
+  async clearAllProducts(): Promise<void> {
+    await this.productRepository.query('TRUNCATE TABLE "product" RESTART IDENTITY CASCADE');
+  }
 }
