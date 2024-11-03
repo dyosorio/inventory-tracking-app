@@ -6,4 +6,5 @@ export interface InventoryRepositoryInterface {
     findAll(): Promise<Inventory[]>;
     clearAll(): Promise<void>;
     query?(queryString: string): Promise<void>;
+    save(inventory: Inventory): Promise<Inventory>;
 }

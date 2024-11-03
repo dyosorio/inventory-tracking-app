@@ -3,6 +3,7 @@ import { AppModule } from "@/app.module";
 import { ProductService } from "@/product/product.service";
 import { RegionService } from "@/region/region.service";
 import { InventoryService } from "@/inventory/inventory.service";
+import { Inventory } from "@/entities/inventory.entity";
 
 async function bootstrap() {
     const app = await NestFactory.createApplicationContext(AppModule);
@@ -34,12 +35,19 @@ async function bootstrap() {
 
     for (const product of productEntities) {
         for (const region of regions) {
+            const allocation = Math.floor(Math.random() * 1000) + 1;
             await inventoryService.updateInventory({
                 productId: product.id,
                 regionId: region.id,
-                allocation: Math.floor(Math.random() * 1000) + 1, 
+                allocation,
                 allocationTimestamp: new Date(),
             });
+
+            const newInventory: Inventory | null = await inventoryService.findOneByProductAndRegion(product.id, region.id);
+            if (newInventory) {
+                newInventory.stockBalance = newInventory.allocation;
+                await inventoryService.save(newInventory); 
+            }            
         }
     }
 
