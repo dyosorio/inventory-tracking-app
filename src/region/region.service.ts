@@ -18,4 +18,8 @@ export class RegionService {
   async getAllRegions(): Promise<Region[]> {
     return this.regionRepository.find();
   }
+
+  async findByName(name: string): Promise<Region | undefined> {
+    return this.regionRepository.findOne({ where: { name } });
+  }
 }

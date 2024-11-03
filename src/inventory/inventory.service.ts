@@ -14,7 +14,7 @@ export class InventoryService {
   async updateInventory(updateInventoryDto: UpdateInventoryDto): Promise<void> {
     const { productId, regionId, allocation, allocationTimestamp } = updateInventoryDto;
 
-    const existingInventory = await this.inventoryRepository.findOne({
+    let existingInventory = await this.inventoryRepository.findOne({
         where: {
             product: { id: productId },
             region: { id: regionId }
@@ -26,7 +26,14 @@ export class InventoryService {
         existingInventory.allocationTimestamp = allocationTimestamp;
         await this.inventoryRepository.save(existingInventory);
     } else {
-        throw new Error('Inventory entry not found');
+        existingInventory = this.inventoryRepository.create({
+            product: { id: productId } as any, // Cast to 'any' to bypass type checking
+            region: { id: regionId } as any, // Cast to 'any' to bypass type checking
+            allocation,
+            allocationTimestamp,
+        });
+        await this.inventoryRepository.save(existingInventory);
+        // throw new Error('Inventory entry not found');
     }
   }
 }
