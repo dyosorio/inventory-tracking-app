@@ -28,6 +28,7 @@ export class InventoryService {
 
       }
       existingInventory.allocation = allocation;
+      existingInventory.stockBalance = allocation;
       existingInventory.allocationTimestamp = allocationTimestamp || new Date();
       await this.inventoryRepository.save(existingInventory);
     } else {
@@ -38,6 +39,7 @@ export class InventoryService {
       existingInventory.product = { id: productId } as any; 
       existingInventory.region = { id: regionId } as any;   
       existingInventory.allocation = allocation;
+      existingInventory.stockBalance = allocation;
       existingInventory.allocationTimestamp = allocationTimestamp || new Date();
       await this.inventoryRepository.save(existingInventory);
     }
@@ -56,7 +58,6 @@ export class InventoryService {
   }
 
   async decreaseStock(adjustStockDto: AdjustStockDto): Promise<void> {
-
     const { productId, regionId, amount } = adjustStockDto;
 
     const inventory = await this.inventoryRepository.findOneByProductAndRegion(productId, regionId);
@@ -66,6 +67,7 @@ export class InventoryService {
 
     try {
       inventory.decreaseStock(amount);
+      inventory.stockBalance -= amount;
       await this.inventoryRepository.save(inventory);
     } catch (error) {
       throw new BadRequestException(error.message);

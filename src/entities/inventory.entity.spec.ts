@@ -15,6 +15,7 @@ describe('Inventory Entity', () => {
     inventory.product = product;
     inventory.region = region;
     inventory.allocation = 100;
+    inventory.stockBalance = 100;
     inventory.allocationTimestamp = new Date();    
   });
 
@@ -62,4 +63,24 @@ describe('Inventory Entity', () => {
     expect(inventory.meetsThreshold(50)).toBe(true);
     expect(inventory.meetsThreshold(150)).toBe(false);
   });
+
+  it('should initialize stockBalance to match the allocation', () => {
+    inventory.allocation = 100;
+    inventory.stockBalance = inventory.allocation; // Explicitly set stockBalance for testing
+    expect(inventory.stockBalance).toBe(inventory.allocation);
+  });
+  
+  it('should decrease the allocation and stock balance correctly', () => {
+    inventory.decreaseStock(20);
+    expect(inventory.allocation).toBe(80); // Verify allocation
+    expect(inventory.stockBalance).toBe(80); // Verify stockBalance
+  });
+  
+  it('should throw an error if the decrease amount is greater than the current stock balance', () => {
+    expect(() => inventory.decreaseStock(150)).toThrowError('Stock cannot be negative.');
+  });
+  
+  it('should not allow stock balance to go negative when decreasing stock', () => {
+    expect(() => inventory.decreaseStock(110)).toThrowError('Stock cannot be negative.');
+  });     
 });

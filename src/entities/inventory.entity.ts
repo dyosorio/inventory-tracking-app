@@ -28,13 +28,18 @@ export class Inventory {
   @Column('int', { default: 0 })
   allocation: number;
 
+  @ApiProperty({ description: 'The current stock balance', example: 500 })
+  @Column('int', { default: 0 })
+  stockBalance: number;  
+
   @ApiProperty({ description: 'The timestamp for the allocation' })
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   allocationTimestamp: Date;
 
-  @ApiProperty({ description: 'The total stock available', example: 1000 })
-  @Column('int', { default: 0 })
-  stockBalance: number;
+  constructor() {
+    this.allocation = 0;
+    this.stockBalance = this.allocation; // Ensures stockBalance matches the initial allocation
+  }
 
   /**
    * Increases the stock allocation by the specified amount.
@@ -46,6 +51,7 @@ export class Inventory {
       throw new Error('Increase amount must be greater than zero.');
     }
     this.allocation += amount;
+    this.stockBalance = this.allocation;
     this.allocationTimestamp = new Date();
   }
 
@@ -58,10 +64,11 @@ export class Inventory {
     if (amount <= 0) {
       throw new Error('Decrease amount must be greater than zero.');
     }
-    if (this.allocation - amount < 0) {
+    if (this.stockBalance - amount < 0) {
       throw new Error('Stock cannot be negative.');
     }
-    this.allocation -= amount;
+    this.stockBalance -= amount; 
+    this.allocation -= amount; 
     this.allocationTimestamp = new Date();
     return true;
   }
