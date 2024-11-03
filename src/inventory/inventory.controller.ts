@@ -1,6 +1,7 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
+import { Inventory } from '@/entities/inventory.entity';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 
 @ApiTags('inventory')
@@ -15,5 +16,12 @@ export class InventoryController {
   async updateInventory(@Body() updateInventoryDto: UpdateInventoryDto) {
     await this.inventoryService.updateInventory(updateInventoryDto);
     return { status: 'Inventory updated successfully' };
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all inventory records' })
+  @ApiResponse({ status: 200, description: 'Returns all inventory records', type: [Inventory] })
+  async getAllInventory(): Promise<Inventory[]> {
+    return this.inventoryService.getAllInventory();
   }
 }

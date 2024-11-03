@@ -36,4 +36,8 @@ export class InventoryService {
         // throw new Error('Inventory entry not found');
     }
   }
+
+  async getAllInventory(): Promise<Inventory[]> {
+    return this.inventoryRepository.find({ relations: ['product', 'region'] });
+  }
 }
