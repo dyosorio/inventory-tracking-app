@@ -16,18 +16,24 @@ export class InventoryService {
 
     let existingInventory = await this.inventoryRepository.findOne({
         where: {
-            product: { id: productId },
-            region: { id: regionId }
+          product: { id: productId },
+          region: { id: regionId }
         },
         relations: ['product', 'region'],
     });
     if (existingInventory) {
+      //Check if the new allocation is the same as the current allocation
+      if (existingInventory.allocation === allocation) {
+        throw new BadRequestException('The new allocation is the same as the current allocation. No update required.');
+      }
+
+      //Check for Negative Allocation
       if (allocation < 0) {
         throw new BadRequestException('Allocation must be a non-negative number.');
 
       }
       existingInventory.allocation = allocation;
-      existingInventory.allocationTimestamp = allocationTimestamp;
+      existingInventory.allocationTimestamp = allocationTimestamp || new Date();
       await this.inventoryRepository.save(existingInventory);
     } else {
       if (allocation < 0) {
