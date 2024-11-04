@@ -2,16 +2,15 @@ import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import { Inventory } from 'src/entities/inventory.entity';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
-import { AdjustStockWithThresholdDto } from './dto/adjust-stock-with-threshold.dto';
 import { InventoryRepositoryInterface } from './interfaces/inventory-repository.interface';
+import { GlobalConfigService } from '@/global-config/global-config.service';
 
 @Injectable()
 export class InventoryService {
-  private thresholdPercentage: number = 30;
-
   constructor(
     @Inject('InventoryRepositoryInterface') 
     private readonly inventoryRepository: InventoryRepositoryInterface,
+    private readonly globalConfigService: GlobalConfigService,
   ) {}
 
   async updateInventory(updateInventoryDto: UpdateInventoryDto): Promise<void> {
@@ -60,36 +59,28 @@ export class InventoryService {
     await this.inventoryRepository.save(inventory);
   }
 
-  async decreaseStock(adjustStockDto: AdjustStockWithThresholdDto): Promise<void> {
-    const { productId, regionId, amount, thresholdPercentage } = adjustStockDto;
+  async decreaseStock(adjustStockDto: AdjustStockDto): Promise<void> {
+    const { productId, regionId, amount } = adjustStockDto;
 
     const inventory = await this.inventoryRepository.findOneByProductAndRegion(productId, regionId);
     if (!inventory) {
       throw new BadRequestException('Inventory entry not found.');
     }
 
-    // Determine the threshold value based on the provided or default percentage
-    const threshold = thresholdPercentage || 30;
-    const thresholdValue = (inventory.allocation * threshold) / 100;
+    const globalConfig = await this.globalConfigService.getConfig();
+    const thresholdPercentage = globalConfig.globalThreshold;
+    const thresholdValue = (inventory.allocation * thresholdPercentage) / 100;
 
     if (inventory.stockBalance - amount < thresholdValue) {
-      console.log(`Stock level below the ${threshold}% threshold for ${productId} in ${regionId}`);
+      console.log(`Stock level below the ${thresholdPercentage}% threshold for ${productId} in ${regionId}`);
     }    
 
     try {
       inventory.decreaseStock(amount);
-      inventory.stockBalance -= amount;
       await this.inventoryRepository.save(inventory);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
-  }
-
-  async setThreshold(thresholdPercentage: number): Promise<void> {
-    if (thresholdPercentage < 0 || thresholdPercentage > 100) {
-      throw new BadRequestException('Threshold percentage must be between 0 and 100.');
-    }
-    this.thresholdPercentage = thresholdPercentage;
   }
 
   async getAllInventory(): Promise<Inventory[]> {
@@ -107,4 +98,12 @@ export class InventoryService {
   async save(inventory: Inventory): Promise<Inventory> {
     return this.inventoryRepository.save(inventory);
   }  
+
+  async setThreshold(thresholdPercentage: number): Promise<void> {
+    if (thresholdPercentage < 0 || thresholdPercentage > 100) {
+      throw new BadRequestException('Threshold percentage must be between 0 and 100.');
+    }
+
+    await this.globalConfigService.updateGlobalThreshold(thresholdPercentage);
+  }
 }

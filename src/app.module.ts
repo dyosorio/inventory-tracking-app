@@ -8,6 +8,7 @@ import { KafkaService } from './kafka/kafka.service';
 import { InventoryModule } from './inventory/inventory.module';
 import { ProductModule } from './product/product.module';
 import { RegionModule } from './region/region.module';
+import { GlobalConfigModule } from './global-config/global-config.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { RegionModule } from './region/region.module';
     InventoryModule,
     ProductModule,
     RegionModule,
+    GlobalConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService, KafkaService],
