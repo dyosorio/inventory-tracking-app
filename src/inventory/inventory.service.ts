@@ -4,6 +4,7 @@ import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { InventoryRepositoryInterface } from './interfaces/inventory-repository.interface';
 import { GlobalConfigService } from '@/global-config/global-config.service';
+import { KafkaService } from '@/kafka/kafka.service'; 
 
 @Injectable()
 export class InventoryService {
@@ -11,6 +12,7 @@ export class InventoryService {
     @Inject('InventoryRepositoryInterface') 
     private readonly inventoryRepository: InventoryRepositoryInterface,
     private readonly globalConfigService: GlobalConfigService,
+    private readonly kafkaService: KafkaService,
   ) {}
 
   async updateInventory(updateInventoryDto: UpdateInventoryDto): Promise<void> {
@@ -73,6 +75,13 @@ export class InventoryService {
 
     if (inventory.stockBalance - amount < thresholdValue) {
       console.log(`Stock level below the ${thresholdPercentage}% threshold for ${productId} in ${regionId}`);
+
+      await this.kafkaService.sendMessage('inventory-alert', {
+        productId,
+        regionId,
+        currentStock: inventory.stockBalance - amount,
+        message: `Stock level has fallen below ${thresholdPercentage}% threshold.`,
+      });
     }    
 
     try {

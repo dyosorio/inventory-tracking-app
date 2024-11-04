@@ -9,6 +9,7 @@ import { InventoryModule } from './inventory/inventory.module';
 import { ProductModule } from './product/product.module';
 import { RegionModule } from './region/region.module';
 import { GlobalConfigModule } from './global-config/global-config.module';
+import { WebhookController } from './webhook/webhook.controller';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { GlobalConfigModule } from './global-config/global-config.module';
     RegionModule,
     GlobalConfigModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, WebhookController],
   providers: [AppService, KafkaService],
 })
 export class AppModule {}

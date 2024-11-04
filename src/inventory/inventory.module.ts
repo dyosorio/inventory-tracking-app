@@ -6,11 +6,13 @@ import { InventoryService } from './inventory.service';
 import { InventoryController } from './inventory.controller';
 import { InventoryRepository } from './repositories/inventory-repository';
 import { GlobalConfigModule } from '@/global-config/global-config.module';
+import { KafkaModule } from '@/kafka/kafka.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Inventory, GlobalConfig]),
     GlobalConfigModule,
+    KafkaModule,
   ],
   providers: [
     InventoryService,
