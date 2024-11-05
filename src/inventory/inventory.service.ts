@@ -21,12 +21,10 @@ export class InventoryService {
     let existingInventory = await this.inventoryRepository.findOneByProductAndRegion(productId, regionId);
 
     if (existingInventory) {
-      //Check if the new allocation is the same as the current allocation
       if (existingInventory.allocation === allocation) {
         throw new BadRequestException('The new allocation is the same as the current allocation. No update required.');
       }
 
-      //Check for Negative Allocation
       if (allocation < 0) {
         throw new BadRequestException('Allocation must be a non-negative number.');
 

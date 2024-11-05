@@ -27,8 +27,8 @@ describe('Inventory E2E Test', () => {
     const response = await request(app.getHttpServer())
       .patch('/inventory/decrease')
       .send({
-        productId: '5666dda1-a424-4a23-93ed-22ee993d5590', // valid product ID
-        regionId: 'f1110fbe-f527-4a82-b506-9abf53010896', // valid region ID 
+        productId: '5666dda1-a424-4a23-93ed-22ee993d5590',
+        regionId: 'f1110fbe-f527-4a82-b506-9abf53010896', 
         amount: 50,
       })
       .expect(200);

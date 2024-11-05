@@ -51,9 +51,6 @@ async function bootstrap() {
         }
     }
 
-    // await inventoryService.clearAllInventory(); 
-    // await productService.clearAllProducts(); 
-
     console.log('Seeding completed');
     await app.close();
 }

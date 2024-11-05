@@ -28,7 +28,7 @@ import { WebhookModule } from './webhook/webhook.module';
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // reminder: change to false later
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
