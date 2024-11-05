@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, BadRequestException, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ProductService } from '@/product/product.service';
 import { RegionService } from '@/region/region.service';
@@ -7,6 +7,8 @@ import { AlertPayloadDto } from './alert-payload.dto';
 @ApiTags('webhook')
 @Controller('webhook')
 export class WebhookController {
+  private readonly logger = new Logger(WebhookController.name);
+
   constructor(
     private readonly productService: ProductService,
     private readonly regionService: RegionService,
@@ -14,7 +16,7 @@ export class WebhookController {
 
   @Post('receive-alert')
   @HttpCode(200)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Receive notifications for inventory alerts',
     description: 'This endpoint receives alerts when an inventory stock balance falls below the configured threshold',
   })
@@ -56,9 +58,9 @@ export class WebhookController {
 
     if (!regionExists) {
       throw new BadRequestException(`Region ID ${regionId} does not exist.`);
-    }    
+    }
 
-    console.log('Received alert:', payload);
+    this.logger.log('Received alert:', payload);
     return { status: 'Alert received successfully' };
   }
 }

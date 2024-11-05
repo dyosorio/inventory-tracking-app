@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { KafkaService } from './kafka/kafka.service';
+import { KafkaModule } from './kafka/kafka.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ProductModule } from './product/product.module';
 import { RegionModule } from './region/region.module';
@@ -32,6 +32,7 @@ import { WebhookModule } from './webhook/webhook.module';
       }),
       inject: [ConfigService],
     }),
+    KafkaModule,
     InventoryModule,
     ProductModule,
     RegionModule,
@@ -39,6 +40,6 @@ import { WebhookModule } from './webhook/webhook.module';
     WebhookModule,
   ],
   controllers: [AppController, WebhookController],
-  providers: [AppService, KafkaService],
+  providers: [AppService],
 })
 export class AppModule {}

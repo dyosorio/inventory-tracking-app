@@ -1,6 +1,8 @@
 import { Injectable, OnModuleInit, Logger, OnModuleDestroy } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Kafka, Producer, Consumer, Partitioners, KafkaJSConnectionError } from 'kafkajs';
+import { AlertPayloadDto } from '@/webhook/alert-payload.dto'; 
 
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
@@ -9,7 +11,10 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   private producer: Producer;
   private consumer: Consumer;
 
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private readonly httpService: HttpService,  
+  ) {}
 
   async onModuleInit() {
     const brokersEnv = this.configService.get<string>('KAFKA_BROKERS');
@@ -32,14 +37,19 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
     try {
       await this.producer.connect();
-
       await this.consumer.connect();
 
       await this.consumer.subscribe({ topic: 'inventory-decrease', fromBeginning: true });
 
       await this.consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
-          this.logger.log(`Received message: ${message.value?.toString()}`);
+          const alertPayload: AlertPayloadDto = JSON.parse(message.value.toString());
+          this.logger.log(`Received message: ${JSON.stringify(alertPayload)}`);
+
+          // Check if the stock level is below the threshold
+          if (alertPayload.currentStock < alertPayload.threshold) {
+            await this.sendWebhookNotification(alertPayload);
+          }
         },
       });
     } catch (error) {
@@ -49,6 +59,16 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
         this.logger.error('Failed to connect Kafka producer/consumer', error);
       }
       throw new Error('Kafka producer/consumer connection failed');
+    }
+  }
+
+  async sendWebhookNotification(alertPayload: AlertPayloadDto) {
+    const webhookUrl = this.configService.get<string>('WEBHOOK_URL');
+    try {
+      const response = await this.httpService.post(webhookUrl, alertPayload).toPromise();
+      this.logger.log(`Webhook notification sent: ${JSON.stringify(response.data)}`);
+    } catch (error) {
+      this.logger.error('Error sending webhook notification:', error);
     }
   }
 
