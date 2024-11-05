@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Kafka, Producer, Consumer, Partitioners, KafkaJSConnectionError } from 'kafkajs';
 import { AlertPayloadDto } from '@/webhook/alert-payload.dto'; 
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
@@ -62,17 +63,38 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async sendWebhookNotification(alertPayload: AlertPayloadDto) {
+  async  sendWebhookNotification(alertPayload: AlertPayloadDto) {
     const webhookUrl = this.configService.get<string>('WEBHOOK_URL');
+
+    if (!webhookUrl) {
+      this.logger.error('Webhook URL is not defined in the configuration');
+      return;
+    }
+
+    this.logger.log(`Sending webhook notification to: ${webhookUrl}`);
+    this.logger.log(`Payload: ${JSON.stringify(alertPayload)}`);
+
     try {
-      const response = await this.httpService.post(webhookUrl, alertPayload).toPromise();
+      const response = await lastValueFrom(
+        this.httpService.post(
+          webhookUrl, 
+          JSON.stringify(alertPayload), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        }));
       this.logger.log(`Webhook notification sent: ${JSON.stringify(response.data)}`);
     } catch (error) {
       this.logger.error('Error sending webhook notification:', error);
+      if (error.response) {
+        this.logger.error(`Response Data: ${JSON.stringify(error.response.data)}`);
+        this.logger.error(`Status Code: ${error.response.status}`);
+      }
     }
   }
 
-  async sendMessage(topic: string, message: any) {
+  async sendMessage(topic: string = 'inventory-decrease', message: any) {
     try {
       await this.producer.send({
         topic,

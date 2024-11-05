@@ -76,10 +76,11 @@ export class InventoryService {
     if (inventory.stockBalance - amount < thresholdValue) {
       console.log(`Stock level below the ${thresholdPercentage}% threshold for ${productId} in ${regionId}`);
 
-      await this.kafkaService.sendMessage('inventory-alert', {
+      await this.kafkaService.sendMessage('inventory-decrease', {
         productId,
         regionId,
         currentStock: inventory.stockBalance - amount,
+        threshold: thresholdPercentage,
         message: `Stock level has fallen below ${thresholdPercentage}% threshold.`,
       });
     }    
