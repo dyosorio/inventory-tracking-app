@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, Inject } from '@nestjs/common';
-import { Inventory } from 'src/entities/inventory.entity';
+import { Inventory } from '@/entities/inventory.entity';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { InventoryRepositoryInterface } from './interfaces/inventory-repository.interface';

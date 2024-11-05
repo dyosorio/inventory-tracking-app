@@ -10,6 +10,10 @@ export class RegionService {
     private regionRepository: Repository<Region>,
   ) {}
 
+  async findById(regionId: string): Promise<Region | null> {
+    return this.regionRepository.findOne({ where: { id: regionId } });
+  }  
+
   async addRegion(regionData: Partial<Region>): Promise<Region> {
     const region = this.regionRepository.create(regionData);
     return this.regionRepository.save(region);

@@ -1,12 +1,13 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Kafka, Producer, Partitioners } from 'kafkajs';
+import { Kafka, Producer, Consumer, Partitioners } from 'kafkajs';
 
 @Injectable()
 export class KafkaService implements OnModuleInit {
   private readonly logger = new Logger(KafkaService.name);
   private kafka: Kafka;
   private producer: Producer;
+  private consumer: Consumer;
 
   constructor(private configService: ConfigService) {}
 
@@ -21,6 +22,8 @@ export class KafkaService implements OnModuleInit {
     this.producer = this.kafka.producer({
       createPartitioner: Partitioners.LegacyPartitioner,
     });
+
+    this.consumer = this.kafka.consumer({ groupId: 'inventory-consumer-group' });
 
     try {
       await this.producer.connect();

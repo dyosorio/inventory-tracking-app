@@ -10,6 +10,7 @@ import { ProductModule } from './product/product.module';
 import { RegionModule } from './region/region.module';
 import { GlobalConfigModule } from './global-config/global-config.module';
 import { WebhookController } from './webhook/webhook.controller';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { WebhookController } from './webhook/webhook.controller';
     ProductModule,
     RegionModule,
     GlobalConfigModule,
+    WebhookModule,
   ],
   controllers: [AppController, WebhookController],
   providers: [AppService, KafkaService],

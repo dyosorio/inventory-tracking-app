@@ -1,14 +1,22 @@
 import { Controller, Post, Body, HttpCode, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ProductService } from '@/product/product.service';
+import { RegionService } from '@/region/region.service';
+import { AlertPayloadDto } from './alert-payload.dto';
 
 @ApiTags('webhook')
 @Controller('webhook')
 export class WebhookController {
+  constructor(
+    private readonly productService: ProductService,
+    private readonly regionService: RegionService,
+  ) {}
+
   @Post('receive-alert')
   @HttpCode(200)
   @ApiOperation({ 
     summary: 'Receive notifications for inventory alerts',
-    description: 'This endpoint receives alerts when an inventory stock balance falls below the configured threshold. It simulates processing the alert and returns a status response.',
+    description: 'This endpoint receives alerts when an inventory stock balance falls below the configured threshold',
   })
   @ApiResponse({
     status: 200,
@@ -36,11 +44,21 @@ export class WebhookController {
       },
     },
   })
-  handleAlert(@Body() payload: any): { status: string } {
-    if (!payload.productId || !payload.regionId) {
-        throw new BadRequestException('Product ID and Region ID are required.');
+  async handleAlert(@Body() payload: AlertPayloadDto): Promise<{ status: string }> {
+    const { productId, regionId } = payload;
+
+    const productExists = await this.productService.findById(productId);
+    const regionExists = await this.regionService.findById(regionId);
+
+    if (!productExists) {
+      throw new BadRequestException(`Product ID ${productId} does not exist.`);
     }
+
+    if (!regionExists) {
+      throw new BadRequestException(`Region ID ${regionId} does not exist.`);
+    }    
+
     console.log('Received alert:', payload);
-    return { status: 'Webhook Alert received successfully' };
+    return { status: 'Alert received successfully' };
   }
 }

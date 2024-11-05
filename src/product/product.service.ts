@@ -10,6 +10,10 @@ export class ProductService {
     private productRepository: Repository<Product>,
   ) {}
 
+  async findById(productId: string): Promise<Product | null> {
+    return this.productRepository.findOne({ where: { id: productId } });
+  }
+
   async addProduct(productData: Partial<Product>): Promise<Product> {
     const product = this.productRepository.create(productData);
     return this.productRepository.save(product);
