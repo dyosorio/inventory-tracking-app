@@ -77,7 +77,7 @@ Project Architecture
 
 ### Prerequisites
 
-- **Node.js** and **npm** installed.
+- **Node.js** and **npm** installed. Make sure you are using `v18.19.1` or up
 - **NestJS CLI** installed globally.
 - Docker
 - ngrok 
@@ -89,65 +89,62 @@ Project Architecture
     git clone https://github.com/dyosorio/inventory-tracking-app.git
     cd inventory-tracking-app
     ```
-    1.1 Set up the .env file, after you set up postgreSQL it needs to look like this. You need to generate a WEBHOOK_URL everytime by running ngrok.
+    - Set up the .env file, after you set up postgreSQL it needs to look like this. You need to generate a WEBHOOK_URL everytime by running ngrok.
+
     ```
     # PostgreSQL configuration
     POSTGRES_HOST=localhost
     POSTGRES_PORT=5432
-    POSTGRES_USER=your_username
-    POSTGRES_PASSWORD=your_password
-    POSTGRES_DB=inventory_db
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: inventory_db
 
     # Kafka configuration
     KAFKA_BROKERS=localhost:9092
     KAFKAJS_NO_PARTITIONER_WARNING=1
 
     # Webhook
-    WEBHOOK_URL=https://e149-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/webhook/receive-alert
+    WEBHOOK_URL=https://<your-ngrok-id>.ngrok-free.app/webhook/receive-alert
     ```
-2. npm install
+2. run `npm install`
 
-3. Make sure Docker is installed and run `docker-compose up` 
+3. Make sure Docker is installed, open Docker Desktop and run `docker-compose up`
 
-4. Make sure ngrok is avaiable and run `ngrok http 3000`
+4. Run the application `npm run start`
 
-5. Run the application `npm run start`
+5. Create and set up ngrok account (Sorry for the inconvenience! This will generate the WEBHOOK_URL)
+    - Sign in for an account: https://dashboard.ngrok.com/signup
+    - Use Google oauth
+    - Accept terms, click on Create Account. Ignore the QR, or the token, follow to the next step.
+    - Access the url https://dashboard.ngrok.com/get-started/your-authtoken and follow the steps
+    - Copy the token under the text `This is your personal Authtoken. Use this to authenticate the ngrok agent that you downloaded.`
+    - Copy this command `ngrok config add-authtoken $YOUR_AUTHTOKEN`
+    - Run it in your terminal, prefix it with npx `npx ngrok config add-authtoken $YOUR_AUTHTOKEN`
+    - run `ngrok http 3000` to get the webhook url
+        Example, find the url next to Forwarding
+        ```
+        session Status                online                                                                               Account                       alejandrourroz86@gmail.com (Plan: Free)                                              Version                       3.18.2                                                                               Region                        Europe (eu)                                                                          WLatency                       21ms                                                                                 Web Interface                 http://127.0.0.1:4040                                                                Forwarding                    https://fa6b-2a02-a44e-6e17-1-382a-bb2c-97db-793c.ngrok-free.app -> http://localhost:                                                                                                                   Connections                   ttl     opn     rt1     rt5     p50     p90                                                                        0       0       0.00    0.00    0.00    0.00
+        ```
+    - Copy the URL and add it as a value for WEBHOOK_URL on the .env file. Please make sure you add `/webhook/receive-alert`at the end of the generated url
+        ```
+        WEBHOOK_URL=https://<your-ngrok-url>/webhook/receive-alert
+        ```     
 
 6. Access Swagger for API testing http://localhost:3000/api
 
 7. Access kafdrop for Kafka monitoring, Topic: inventory-decrease http://localhost:9000/topic/inventory-decrease
 
-8. Set up PostgreSQL
-    - Make sure postgres is installed
-    - run `psql -U postgres` 
-    - run `CREATE DATABASE inventory_db;`
-    - run `CREATE USER your_username WITH PASSWORD 'your_password';`
-    - run `GRANT ALL PRIVILEGES ON DATABASE inventory_db TO your_username;`
-    - configure the .env file
-        ```
-        # PostgreSQL configuration
-        POSTGRES_HOST=localhost
-        POSTGRES_PORT=5432
-        POSTGRES_USER=your_username      # Replace with the created username
-        POSTGRES_PASSWORD=your_password  # Replace with the created password
-        POSTGRES_DB=inventory_db
-        ```
-9. Seed the data base
-    - run `npm install -g ts-node`
-    - `ts-node src/seed.ts`
-    - Verify the data base by running \dt
-    - Verify inventory table by running `SELECT * FROM inventory;`
+8. Seed the data base
+    - Run the command`npx run ts-node src/seeds/seed.ts`
+    - After excecution go to Swagger and execute the GET /inventory endpoint
+    - If the response is 200 and it has data you can procede to test the decrease endpoint and below threshold webhook notification. See - [Usage](#usage) for more details
 
 ## Usage
-- Make sure you are using a newer Node version, `v18.19.1` and up.
-- run npm install
-- run `docker-compose up`
-- run `npm run start`
-- run `ngrok http 3000` to generate a fresh Webhook URL
-- Open the .env file and add the ngrok generated URL with `/webhook/receive-alert` at the end
-    ```WEBHOOK_URL=https://5f0c-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/webhook/receive-alert```
-- Open Swagger http://localhost:3000/api#/
-- Set up the threshold percentage using the POST endpoint `/inventory/set-threshold`, or don't set up the threshold and use the default 30% value
+- Follow the set up steps above
+- run `ngrok http 3000` to generate a fresh Webhook URL if needed. The URL is not persistent, it expires after some time.
+- Go the .env file and add the ngrok generated URL with `/webhook/receive-alert` at the end if needed.
+- Go to Swagger http://localhost:3000/api#/
+- Set up the threshold percentage by executing the `POST` endpoint `/inventory/set-threshold`, or don't set up the threshold and use the default 30% value
 - Select an item from the inventory to test. You can get the complete inventory by executing the GET `/inventory`  endpoint in Swagger. See the example response below.
 
     ```
@@ -297,6 +294,8 @@ Project Architecture
     "amount": 400
     }
     ```
+
+### Decrease stock levels below threshold and get the webhook notification
 - Use the /inventory/decrease endpoint in Swagger to reduce item stock levels. In the request body, include the productId, regionId, and the amount you wish to subtract from the current stockBalance. For example, if the stockBalance is 80 and you set the amount to 20, the remaining stockBalance will be 60. Ensure that the amount you subtract is enough to trigger the low balance threshold notification.
     -Request Body
     ```
@@ -338,7 +337,7 @@ Project Architecture
     [Nest] 47430  - 11/06/2024, 12:30:55 PM     LOG [KafkaService] Webhook notification sent: {"status":"Alert received successfully"}
     ```
 
-- If you get this error instead of the decrease below threshold Webhook notification, it means you need to generate a new ngrok URL. Follow the steps below to fix.
+- If you get this error instead of the decrease below threshold Webhook notification, it means you need to generate a new ngrok URL. Follow the steps below to solve it.
     ```
     [Nest] 10255  - 11/06/2024, 12:25:08 PM   ERROR [KafkaService] Error sending webhook notification:
     [Nest] 10255  - 11/06/2024, 12:25:08 PM   ERROR [KafkaService] AxiosError: Request failed with status code 404
@@ -346,10 +345,9 @@ Project Architecture
     [Nest] 10255  - 11/06/2024, 12:25:08 PM   ERROR [KafkaService] Status Code: 404
     ```
     - run `ngrok http 3000` to generate a new URL
-    - Copy the url and past it on the .env file WEBHOOK_URL=https://e149-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/webhook/receive-alert
-    - You can past the generated URL in your browser https://e149-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/
-    - Restart Node
-    - Decrease inventory stock levels for an item again
+    - Copy the url and past it on the .env file. Example: `WEBHOOK_URL=https://e149-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/webhook/receive-alert`
+    - Run `npm run start`again
+    - Decrease inventory stock levels for an item again and check the logs for the notification.
 
 ### API endpoints
 
@@ -361,3 +359,4 @@ Project Architecture
 | `/inventory/set-threshold`  | POST   | Sets the global threshold percentage for stock decrease notifications. | `{ "thresholdPercentage": 30 }`                                                |
 | `/inventory`                | GET    | Retrieves all inventory records.                                       |                                                                                |
 
+Thanks!
