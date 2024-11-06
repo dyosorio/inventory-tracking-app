@@ -4,6 +4,11 @@
 
 This project is an inventory and notification system that provides real-time inventory updates and notification alerts when stock decreases below a predefined threshold. The threshold can be set dynamically through a POST request to the /inventory/set-threshold endpoint.
 
+Regarding the threshold logic, I decided to implement a dynamic, configurable threshold percentage. To trigger a notification, you need to decrease the stock by an amount that brings it below the percentage of the current allocation or stock balance.
+
+For example: 
+If the threshold is set to 10% and the stock balance is 100, you would need to decrease the stock by 97 items to trigger the notification alert.
+
 ## Table of Contents
 
 - [Features](#features)
@@ -84,6 +89,22 @@ Project Architecture
     git clone https://github.com/dyosorio/inventory-tracking-app.git
     cd inventory-tracking-app
     ```
+    1.1 Set up the .env file, after you set up postgreSQL it needs to look like this. You need to generate a WEBHOOK_URL everytime by running ngrok.
+    ```
+    # PostgreSQL configuration
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+    POSTGRES_USER=your_username
+    POSTGRES_PASSWORD=your_password
+    POSTGRES_DB=inventory_db
+
+    # Kafka configuration
+    KAFKA_BROKERS=localhost:9092
+    KAFKAJS_NO_PARTITIONER_WARNING=1
+
+    # Webhook
+    WEBHOOK_URL=https://e149-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/webhook/receive-alert
+    ```
 2. npm install
 
 3. Make sure Docker is installed and run `docker-compose up` 
@@ -96,13 +117,26 @@ Project Architecture
 
 7. Access kafdrop for Kafka monitoring, Topic: inventory-decrease http://localhost:9000/topic/inventory-decrease
 
-8. Seed the data base
-    8.1 run `npm install -g ts-node`
-    8.2 `ts-node src/seed.ts`
-    8.3 Verify the data base by running \dt
-    8.4 Verify inventory table by running `SELECT * FROM inventory;`
-
-
+8. Set up PostgreSQL
+    8.1 Make sure postgres is installed
+    8.2 run `psql -U postgres` 
+    8.3 run `CREATE DATABASE inventory_db;`
+    8.4 run `CREATE USER your_username WITH PASSWORD 'your_password';`
+    8.5 run `GRANT ALL PRIVILEGES ON DATABASE inventory_db TO your_username;`
+    8.6 configure the .env file
+        ```
+        # PostgreSQL configuration
+        POSTGRES_HOST=localhost
+        POSTGRES_PORT=5432
+        POSTGRES_USER=your_username      # Replace with the created username
+        POSTGRES_PASSWORD=your_password  # Replace with the created password
+        POSTGRES_DB=inventory_db
+        ```
+9. Seed the data base
+    9.1 run `npm install -g ts-node`
+    9.2 `ts-node src/seed.ts`
+    9.3 Verify the data base by running \dt
+    9.4 Verify inventory table by running `SELECT * FROM inventory;`
 
 ## Usage
 - Make sure you are using a newer Node version, `v18.19.1` and up.
