@@ -120,11 +120,7 @@ Project Architecture
     - Copy the token under the text `This is your personal Authtoken. Use this to authenticate the ngrok agent that you downloaded.`
     - Copy this command `ngrok config add-authtoken $YOUR_AUTHTOKEN`
     - Run it in your terminal, prefix it with npx `npx ngrok config add-authtoken $YOUR_AUTHTOKEN`
-    - run `ngrok http 3000` to get the webhook url
-        Example, find the url next to Forwarding
-        ```
-        session Status                online                                                                               Account                       alejandrourroz86@gmail.com (Plan: Free)                                              Version                       3.18.2                                                                               Region                        Europe (eu)                                                                          WLatency                       21ms                                                                                 Web Interface                 http://127.0.0.1:4040                                                                Forwarding                    https://fa6b-2a02-a44e-6e17-1-382a-bb2c-97db-793c.ngrok-free.app -> http://localhost:                                                                                                                   Connections                   ttl     opn     rt1     rt5     p50     p90                                                                        0       0       0.00    0.00    0.00    0.00
-        ```
+    - run `ngrok http 3000` to get the webhook URL. Find the URL next to Forwarding
     - Copy the URL and add it as a value for WEBHOOK_URL on the .env file. Please make sure you add `/webhook/receive-alert`at the end of the generated url
         ```
         WEBHOOK_URL=https://<your-ngrok-url>/webhook/receive-alert
