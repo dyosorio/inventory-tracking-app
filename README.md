@@ -41,8 +41,12 @@ This project is an inventory and notification system that provides real-time inv
 ### Usage
 
 ### API endpoints
-| Endpoint                    | Method | Description                                        | Example Request Body                                   |
-|-----------------------------|--------|----------------------------------------------------|------------------------------------------------------- |
-| `/inventory/update`         | POST   | Update inventory for a product in a region         | `{ "productId": 1, "threshold": 15 }`                  |
-| `/inventory/increase`       | PATCH  | Increases inventory                                | `{ "productId": 1, "amount": 10 }`                     |
-| `/inventory/decrease`       | PATCH  | Decreases inventory                                | `{ "productId": 1, "amount": 5 }`                      |
+
+| Endpoint                    | Method | Description                                                            | Example Request Body                                                           |
+|-----------------------------|--------|------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| `/inventory/update`         | POST   | Updates inventory for a specific product in a region.                  | `{ "productId": "product-uuid", "regionId": "region-uuid", "amount": 100 }`    |
+| `/inventory/increase`       | PATCH  | Increases inventory allocation for a product in a region.              | `{ "productId": "product-uuid", "regionId": "region-uuid", "amount": 20 }`     |
+| `/inventory/decrease`       | PATCH  | Decreases inventory allocation for a product in a region.              | `{ "productId": "product-uuid", "regionId": "region-uuid", "amount": 10 }`     |
+| `/inventory/set-threshold`  | POST   | Sets the global threshold percentage for stock decrease notifications. | `{ "thresholdPercentage": 30 }`                                                |
+| `/inventory`                | GET    | Retrieves all inventory records.                                       |                                                                                |
+
