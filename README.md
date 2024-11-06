@@ -78,37 +78,217 @@ Project Architecture
 - ngrok 
 
 ### Usage
+- Make sure you are using a newer Node version, `v18.19.1` and up.
+- run npm install
+- run `docker-compose up`
+- run `npm run start`
+- run `ngrok http 3000` to generate a fresh Webhook URL
+- Open the .env file and add the ngrok generated URL with `/webhook/receive-alert` at the end
+    ```WEBHOOK_URL=https://5f0c-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/webhook/receive-alert```
 - Open Swagger http://localhost:3000/api#/
-- Set up the threshold using the POST endpoint `/inventory/set-threshold`, or don't set up the threshold and use the default 30% value
-- Select an item from the inventory to test. You can get the complete inventory by executing the GET `/inventory`  endpoint in Swagger
-  - Once the data base is seeded, run `SELECT * FROM inventory;`
-  - Make sure the selected item have enough stock balance, if not add stock by using the `/inventory/increase` endpoint
+- Set up the threshold percentage using the POST endpoint `/inventory/set-threshold`, or don't set up the threshold and use the default 30% value
+- Select an item from the inventory to test. You can get the complete inventory by executing the GET `/inventory`  endpoint in Swagger. See the example response below.
 
-  - Example of the Inventory Table
-
-```
-                  id                  | allocation |   allocationTimestamp   |              productId               |               regionId               | stockBalance 
---------------------------------------+------------+-------------------------+--------------------------------------+--------------------------------------+--------------
- 6a8cf6bb-95c3-4fe8-965a-dd4c43e55a0a |          1 | 2024-11-05 23:46:00.629 | 5666dda1-a424-4a23-93ed-22ee993d5590 | 39ca596b-f30c-41eb-bdd0-53ab2c2f979a |            100
- 1315f364-84c0-4125-9445-83e11d30c7cd |          3 | 2024-11-05 10:58:16.187 | a54158c7-c2ee-4cd8-a095-37103d696ba4 | 39ca596b-f30c-41eb-bdd0-53ab2c2f979a |            300
- 8c81d6be-d666-492c-9771-353cd82b97bd |          1 | 2024-11-05 20:09:58.389 | e310a916-a5d4-4033-bc59-27b8771f1efa | 39ca596b-f30c-41eb-bdd0-53ab2c2f979a |            100
- 8e88278f-903d-4c64-a2bc-a9b409d5663c |          1 | 2024-11-05 20:24:11.135 | 5666dda1-a424-4a23-93ed-22ee993d5590 | f1110fbe-f527-4a82-b506-9abf53010896 |            100
- 946bea86-2ed8-46fa-bfcd-9c2e862e43a3 |          2 | 2024-11-05 21:28:31.508 | a54158c7-c2ee-4cd8-a095-37103d696ba4 | f1110fbe-f527-4a82-b506-9abf53010896 |            200
- 663804ec-800a-499d-9f08-df3471c7bce0 |          4 | 2024-11-05 22:56:15.524 | 5666dda1-a424-4a23-93ed-22ee993d5590 | 3201295c-b350-49fc-8c24-c874aa1f48af |            400
- bc176a56-d402-4012-af6d-5d1f67a0bad5 |          2 | 2024-11-05 23:02:42.654 | e310a916-a5d4-4033-bc59-27b8771f1efa | 3201295c-b350-49fc-8c24-c874aa1f48af |            200
- 9eaf9953-ab5c-4f8a-8a39-e0120d2515d7 |          2 | 2024-11-05 23:05:40.397 | a54158c7-c2ee-4cd8-a095-37103d696ba4 | 3201295c-b350-49fc-8c24-c874aa1f48af |            200
-```
-- Decrease the item stock levels by using the `/inventory/decrease` endpoint in Swagger. You will need to add the productId and regionId to the requestBody. Also add the amount you would like to SUBSTRACT from the current stockBalance. If the current stockBalance is 80 for example, and you set up 20 in the amount, then will get 60 in the remaining stockBalance. Make sure you substract enough to trigger the low balance threshold notification.
-```
-{
-  "productId": "5666dda1-a424-4a23-93ed-22ee993d5590",
-  "regionId": "39ca596b-f30c-41eb-bdd0-53ab2c2f979a",
-  "amount": 20
-}
-```
-- Optionally check kafkadrops to monitor the Kafka notification.
+    ```
+    [
+    {
+        "allocation": 401,
+        "stockBalance": 401,
+        "id": "6a8cf6bb-95c3-4fe8-965a-dd4c43e55a0a",
+        "allocationTimestamp": "2024-11-06T11:15:26.668Z",
+        "product": {
+        "id": "5666dda1-a424-4a23-93ed-22ee993d5590",
+        "name": "VARSITY EMBROIDERED CARDIGAN RED",
+        "description": "Bold, vintage-inspired charm"
+        },
+        "region": {
+        "id": "39ca596b-f30c-41eb-bdd0-53ab2c2f979a",
+        "name": "NA"
+        }
+    },
+    {
+        "allocation": 3,
+        "stockBalance": 3,
+        "id": "1315f364-84c0-4125-9445-83e11d30c7cd",
+        "allocationTimestamp": "2024-11-05T09:58:16.187Z",
+        "product": {
+        "id": "a54158c7-c2ee-4cd8-a095-37103d696ba4",
+        "name": "CASHMERE BLEND STRIPED TURTLENECK SWEATER NATURAL",
+        "description": "Soft with classic stripes"
+        },
+        "region": {
+        "id": "39ca596b-f30c-41eb-bdd0-53ab2c2f979a",
+        "name": "NA"
+        }
+    },
+    {
+        "allocation": 1,
+        "stockBalance": 1,
+        "id": "8c81d6be-d666-492c-9771-353cd82b97bd",
+        "allocationTimestamp": "2024-11-05T19:09:58.389Z",
+        "product": {
+        "id": "e310a916-a5d4-4033-bc59-27b8771f1efa",
+        "name": "MEDWAY JUMPER MID BLUE",
+        "description": "Timeless comfort with a modern twist"
+        },
+        "region": {
+        "id": "39ca596b-f30c-41eb-bdd0-53ab2c2f979a",
+        "name": "NA"
+        }
+    },
+    {
+        "allocation": 1,
+        "stockBalance": 1,
+        "id": "8e88278f-903d-4c64-a2bc-a9b409d5663c",
+        "allocationTimestamp": "2024-11-05T19:24:11.135Z",
+        "product": {
+        "id": "5666dda1-a424-4a23-93ed-22ee993d5590",
+        "name": "VARSITY EMBROIDERED CARDIGAN RED",
+        "description": "Bold, vintage-inspired charm"
+        },
+        "region": {
+        "id": "f1110fbe-f527-4a82-b506-9abf53010896",
+        "name": "APAC"
+        }
+    },
+    {
+        "allocation": 2,
+        "stockBalance": 2,
+        "id": "946bea86-2ed8-46fa-bfcd-9c2e862e43a3",
+        "allocationTimestamp": "2024-11-05T20:28:31.508Z",
+        "product": {
+        "id": "a54158c7-c2ee-4cd8-a095-37103d696ba4",
+        "name": "CASHMERE BLEND STRIPED TURTLENECK SWEATER NATURAL",
+        "description": "Soft with classic stripes"
+        },
+        "region": {
+        "id": "f1110fbe-f527-4a82-b506-9abf53010896",
+        "name": "APAC"
+        }
+    },
+    {
+        "allocation": 4,
+        "stockBalance": 4,
+        "id": "663804ec-800a-499d-9f08-df3471c7bce0",
+        "allocationTimestamp": "2024-11-05T21:56:15.524Z",
+        "product": {
+        "id": "5666dda1-a424-4a23-93ed-22ee993d5590",
+        "name": "VARSITY EMBROIDERED CARDIGAN RED",
+        "description": "Bold, vintage-inspired charm"
+        },
+        "region": {
+        "id": "3201295c-b350-49fc-8c24-c874aa1f48af",
+        "name": "EMEA"
+        }
+    },
+    {
+        "allocation": 2,
+        "stockBalance": 2,
+        "id": "bc176a56-d402-4012-af6d-5d1f67a0bad5",
+        "allocationTimestamp": "2024-11-05T22:02:42.654Z",
+        "product": {
+        "id": "e310a916-a5d4-4033-bc59-27b8771f1efa",
+        "name": "MEDWAY JUMPER MID BLUE",
+        "description": "Timeless comfort with a modern twist"
+        },
+        "region": {
+        "id": "3201295c-b350-49fc-8c24-c874aa1f48af",
+        "name": "EMEA"
+        }
+    },
+    {
+        "allocation": 2,
+        "stockBalance": 2,
+        "id": "9eaf9953-ab5c-4f8a-8a39-e0120d2515d7",
+        "allocationTimestamp": "2024-11-05T22:05:40.397Z",
+        "product": {
+        "id": "a54158c7-c2ee-4cd8-a095-37103d696ba4",
+        "name": "CASHMERE BLEND STRIPED TURTLENECK SWEATER NATURAL",
+        "description": "Soft with classic stripes"
+        },
+        "region": {
+        "id": "3201295c-b350-49fc-8c24-c874aa1f48af",
+        "name": "EMEA"
+        }
+    },
+    {
+        "allocation": 2,
+        "stockBalance": 2,
+        "id": "1354011a-6baf-4f53-b75c-66a855416eec",
+        "allocationTimestamp": "2024-11-05T22:26:39.723Z",
+        "product": {
+        "id": "e310a916-a5d4-4033-bc59-27b8771f1efa",
+        "name": "MEDWAY JUMPER MID BLUE",
+        "description": "Timeless comfort with a modern twist"
+        },
+        "region": {
+        "id": "f1110fbe-f527-4a82-b506-9abf53010896",
+        "name": "APAC"
+        }
+    }
+    ]
+    ```
+- You may need to increase inventory by using the PATCH /inventory/increase endpoint in Swagger
+    ```
+    {
+    "productId": "5666dda1-a424-4a23-93ed-22ee993d5590",
+    "regionId": "39ca596b-f30c-41eb-bdd0-53ab2c2f979a",
+    "amount": 400
+    }
+    ```
+- Use the /inventory/decrease endpoint in Swagger to reduce item stock levels. In the request body, include the productId, regionId, and the amount you wish to subtract from the current stockBalance. For example, if the stockBalance is 80 and you set the amount to 20, the remaining stockBalance will be 60. Ensure that the amount you subtract is enough to trigger the low balance threshold notification.
+    -Request Body
+    ```
+    {
+    "productId": "5666dda1-a424-4a23-93ed-22ee993d5590",
+    "regionId": "39ca596b-f30c-41eb-bdd0-53ab2c2f979a",
+    "amount": 20
+    }
+    ```
+    - You will get this response
+    ```
+    {
+        "status": "Inventory decreased successfully"
+    }
+    ```
+- Optionally check kafkadrops in http://localhost:9000/ to monitor the Kafka notification. Topic Messages: inventory-decrease
+    - In Node you will see this log
+    ```
+    [Nest] 47430  - 11/06/2024, 12:30:55 PM     LOG [KafkaService] Message sent to topic "inventory-decrease": {"productId":"5666dda1-a424-4a23-93ed-22ee993d5590","regionId":"39ca596b-f30c-41eb-bdd0-53ab2c2f979a","currentStock":1,"threshold":20,"message":"Stock level has fallen below 20% threshold."}
+    ```
+    - Additionally you will see this log
+    ```
+    [Nest] 47430  - 11/06/2024, 12:30:55 PM     LOG [KafkaService] Sending webhook notification to: https://e149-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/webhook/receive-alert
+    [Nest] 47430  - 11/06/2024, 12:30:55 PM     LOG [KafkaService] Payload: {"productId":"5666dda1-a424-4a23-93ed-22ee993d5590","regionId":"39ca596b-f30c-41eb-bdd0-53ab2c2f979a","currentStock":1,"threshold":20,"message":"Stock level has fallen below 20% threshold."}
+    ```
 - Check the Node log messages to get the notification alert only when the item stock levels fall under the defined allocation or stock balance threshold level.
+    - If the webhook alert was successfully received, you will see the logs below on the node terminal
+    ```
+    [Nest] 47430  - 11/06/2024, 12:30:55 PM     LOG [WebhookController] Received alert:
+    [Nest] 47430  - 11/06/2024, 12:30:55 PM     LOG [WebhookController] Object:
+    {
+    "productId": "5666dda1-a424-4a23-93ed-22ee993d5590",
+    "regionId": "39ca596b-f30c-41eb-bdd0-53ab2c2f979a",
+    "currentStock": 1,
+    "threshold": 20,
+    "message": "Stock level has fallen below 20% threshold."
+    }
 
+    [Nest] 47430  - 11/06/2024, 12:30:55 PM     LOG [KafkaService] Webhook notification sent: {"status":"Alert received successfully"}
+    ```
+
+- If you get this error instead of the decrease below threshold Webhook notification, it means you need to generate a new ngrok URL. Follow the steps below to fix.
+    ```
+    [Nest] 10255  - 11/06/2024, 12:25:08 PM   ERROR [KafkaService] Error sending webhook notification:
+    [Nest] 10255  - 11/06/2024, 12:25:08 PM   ERROR [KafkaService] AxiosError: Request failed with status code 404
+    [Nest] 10255  - 11/06/2024, 12:25:08 PM   ERROR [KafkaService] Response Data: "Tunnel 5f0c-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app not found\r\n\r\nERR_NGROK_3200\r\n"
+    [Nest] 10255  - 11/06/2024, 12:25:08 PM   ERROR [KafkaService] Status Code: 404
+    ```
+    - run `ngrok http 3000` to generate a new URL
+    - Copy the url and past it on the .env file WEBHOOK_URL=https://e149-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/webhook/receive-alert
+    - You can past the generated URL in your browser https://e149-2a02-a44e-6e17-1-5537-6e7a-a711-a070.ngrok-free.app/
+    - Restart Node
+    - Decrease inventory stock levels for an item again
 
 ### API endpoints
 
