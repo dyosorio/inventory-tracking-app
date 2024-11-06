@@ -8,6 +8,7 @@ This project is an inventory and notification system that provides real-time inv
 
 - [Features](#features)
 - [Technologies](#technologies)
+- [Project Architecture](#project-architecture)
 - [Project Setup](#setup-instructions)
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
@@ -28,6 +29,43 @@ This project is an inventory and notification system that provides real-time inv
 - **Docker** for containerized Kafka, Zookeeper, and Kafdrop services
 - **Swagger** for API documentation
 - **ngrok** for exposing local webhook endpoints
+
+## Project Architecture
+
+The architecture of this applicaiton is designed as a layered structure, to achieve clear separation of concerns and modularity. 
+Each layer is responsible for a specific set of tasks:
+
+Project Architecture
+|
+├── Presentation Layer
+│   ├── API Endpoints
+│   └── Controllers
+│       └── Maps HTTP requests to services, response validation, Swagger documentation
+|
+├── Business Logic Layer
+│   └── Services
+│       └── Contains the core business logic for managing inventory
+|
+├── Data Access Layer
+│   ├── Repositories
+│   └── Database Interactions
+│       └── Handles data persistence
+|
+├── Integration Layer
+│   ├── Kafka Messaging
+│   └── Webhooks and External APIs
+│       └── Handles Async Communication with external services
+|
+├── Persistence Layer
+│   └── Entities
+│       └── Database schema definitions
+|
+└── Configuration & Infrastructure Layer
+    ├── Environment Setup
+    ├── Docker Configurations
+    └── Configuration Files
+        └── Sets up development and production environments
+
 
 ## Project Setup
 
