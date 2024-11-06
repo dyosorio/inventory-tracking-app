@@ -78,12 +78,13 @@ Project Architecture
 - ngrok 
 
 ### Usage
+- Open Swagger http://localhost:3000/api#/
+- Set up the threshold using the POST endpoint `/inventory/set-threshold`, or don't set up the threshold and use the default 30% value
+- Select an item from the inventory to test. You can get the complete inventory by executing the GET `/inventory`  endpoint in Swagger
+  - Once the data base is seeded, run `SELECT * FROM inventory;`
+  - Make sure the selected item have enough stock balance, if not add stock by using the `/inventory/increase` endpoint
 
-- Set up the threshold suing the endpoint `/inventory/set-threshold`, or don't set it up and use the default 30% threshold 
-- Select an item from the inventory to test
-
-Once the data base is seeded, run `SELECT * FROM inventory;`
-Make sure the selected item have enough stock balande, if not replenish using the `/inventory/increase` endpoint
+  - Example of the Inventory Table
 
 ```
                   id                  | allocation |   allocationTimestamp   |              productId               |               regionId               | stockBalance 
@@ -97,9 +98,16 @@ Make sure the selected item have enough stock balande, if not replenish using th
  bc176a56-d402-4012-af6d-5d1f67a0bad5 |          2 | 2024-11-05 23:02:42.654 | e310a916-a5d4-4033-bc59-27b8771f1efa | 3201295c-b350-49fc-8c24-c874aa1f48af |            200
  9eaf9953-ab5c-4f8a-8a39-e0120d2515d7 |          2 | 2024-11-05 23:05:40.397 | a54158c7-c2ee-4cd8-a095-37103d696ba4 | 3201295c-b350-49fc-8c24-c874aa1f48af |            200
 ```
-- Decrease the item stock levels by using the `/inventory/decrease` endpoint
-- Optionally check kafkadrops to monitor the Kafka notification
-- Check the Node log messages to get the notification alert only when the item stock levels fall under the defined allocation or stock balance threshold level
+- Decrease the item stock levels by using the `/inventory/decrease` endpoint in Swagger. You will need to add the productId and regionId to the requestBody. Also add the amount you would like to SUBSTRACT from the current stockBalance. If the current stockBalance is 80 for example, and you set up 20 in the amount, then will get 60 in the remaining stockBalance. Make sure you substract enough to trigger the low balance threshold notification.
+```
+{
+  "productId": "5666dda1-a424-4a23-93ed-22ee993d5590",
+  "regionId": "39ca596b-f30c-41eb-bdd0-53ab2c2f979a",
+  "amount": 20
+}
+```
+- Optionally check kafkadrops to monitor the Kafka notification.
+- Check the Node log messages to get the notification alert only when the item stock levels fall under the defined allocation or stock balance threshold level.
 
 
 ### API endpoints
