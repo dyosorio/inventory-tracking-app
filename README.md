@@ -79,6 +79,29 @@ Project Architecture
 
 ### Usage
 
+- Set up the threshold suing the endpoint `/inventory/set-threshold`, or don't set it up and use the default 30% threshold 
+- Select an item from the inventory to test
+
+Once the data base is seeded, run `SELECT * FROM inventory;`
+Make sure the selected item have enough stock balande, if not replenish using the `/inventory/increase` endpoint
+
+```
+                  id                  | allocation |   allocationTimestamp   |              productId               |               regionId               | stockBalance 
+--------------------------------------+------------+-------------------------+--------------------------------------+--------------------------------------+--------------
+ 6a8cf6bb-95c3-4fe8-965a-dd4c43e55a0a |          1 | 2024-11-05 23:46:00.629 | 5666dda1-a424-4a23-93ed-22ee993d5590 | 39ca596b-f30c-41eb-bdd0-53ab2c2f979a |            100
+ 1315f364-84c0-4125-9445-83e11d30c7cd |          3 | 2024-11-05 10:58:16.187 | a54158c7-c2ee-4cd8-a095-37103d696ba4 | 39ca596b-f30c-41eb-bdd0-53ab2c2f979a |            300
+ 8c81d6be-d666-492c-9771-353cd82b97bd |          1 | 2024-11-05 20:09:58.389 | e310a916-a5d4-4033-bc59-27b8771f1efa | 39ca596b-f30c-41eb-bdd0-53ab2c2f979a |            100
+ 8e88278f-903d-4c64-a2bc-a9b409d5663c |          1 | 2024-11-05 20:24:11.135 | 5666dda1-a424-4a23-93ed-22ee993d5590 | f1110fbe-f527-4a82-b506-9abf53010896 |            100
+ 946bea86-2ed8-46fa-bfcd-9c2e862e43a3 |          2 | 2024-11-05 21:28:31.508 | a54158c7-c2ee-4cd8-a095-37103d696ba4 | f1110fbe-f527-4a82-b506-9abf53010896 |            200
+ 663804ec-800a-499d-9f08-df3471c7bce0 |          4 | 2024-11-05 22:56:15.524 | 5666dda1-a424-4a23-93ed-22ee993d5590 | 3201295c-b350-49fc-8c24-c874aa1f48af |            400
+ bc176a56-d402-4012-af6d-5d1f67a0bad5 |          2 | 2024-11-05 23:02:42.654 | e310a916-a5d4-4033-bc59-27b8771f1efa | 3201295c-b350-49fc-8c24-c874aa1f48af |            200
+ 9eaf9953-ab5c-4f8a-8a39-e0120d2515d7 |          2 | 2024-11-05 23:05:40.397 | a54158c7-c2ee-4cd8-a095-37103d696ba4 | 3201295c-b350-49fc-8c24-c874aa1f48af |            200
+```
+- Decrease the item stock levels by using the `/inventory/decrease` endpoint
+- Optionally check kafkadrops to monitor the Kafka notification
+- Check the Node log messages to get the notification alert only when the item stock levels fall under the defined allocation or stock balance threshold level
+
+
 ### API endpoints
 
 | Endpoint                    | Method | Description                                                            | Example Request Body                                                           |
