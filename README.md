@@ -118,12 +118,12 @@ Project Architecture
 7. Access kafdrop for Kafka monitoring, Topic: inventory-decrease http://localhost:9000/topic/inventory-decrease
 
 8. Set up PostgreSQL
-    8.1 Make sure postgres is installed
-    8.2 run `psql -U postgres` 
-    8.3 run `CREATE DATABASE inventory_db;`
-    8.4 run `CREATE USER your_username WITH PASSWORD 'your_password';`
-    8.5 run `GRANT ALL PRIVILEGES ON DATABASE inventory_db TO your_username;`
-    8.6 configure the .env file
+    - Make sure postgres is installed
+    - run `psql -U postgres` 
+    - run `CREATE DATABASE inventory_db;`
+    - run `CREATE USER your_username WITH PASSWORD 'your_password';`
+    - run `GRANT ALL PRIVILEGES ON DATABASE inventory_db TO your_username;`
+    - configure the .env file
         ```
         # PostgreSQL configuration
         POSTGRES_HOST=localhost
@@ -133,10 +133,10 @@ Project Architecture
         POSTGRES_DB=inventory_db
         ```
 9. Seed the data base
-    9.1 run `npm install -g ts-node`
-    9.2 `ts-node src/seed.ts`
-    9.3 Verify the data base by running \dt
-    9.4 Verify inventory table by running `SELECT * FROM inventory;`
+    - run `npm install -g ts-node`
+    - `ts-node src/seed.ts`
+    - Verify the data base by running \dt
+    - Verify inventory table by running `SELECT * FROM inventory;`
 
 ## Usage
 - Make sure you are using a newer Node version, `v18.19.1` and up.
