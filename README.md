@@ -35,6 +35,7 @@ This project is an inventory and notification system that provides real-time inv
 The architecture of this applicaiton is designed as a layered structure, to achieve clear separation of concerns and modularity. 
 Each layer is responsible for a specific set of tasks:
 
+```
 Project Architecture
 |
 ├── Presentation Layer
@@ -65,7 +66,7 @@ Project Architecture
     ├── Docker Configurations
     └── Configuration Files
         └── Sets up development and production environments
-
+```
 
 ## Project Setup
 
