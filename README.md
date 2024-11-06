@@ -77,7 +77,34 @@ Project Architecture
 - Docker
 - ngrok 
 
-### Usage
+### Steps
+
+1. Clone the Repository
+    ```
+    git clone https://github.com/dyosorio/inventory-tracking-app.git
+    cd inventory-tracking-app
+    ```
+2. npm install
+
+3. Make sure Docker is installed and run `docker-compose up` 
+
+4. Make sure ngrok is avaiable and run `ngrok http 3000`
+
+5. Run the application `npm run start`
+
+6. Access Swagger for API testing http://localhost:3000/api
+
+7. Access kafdrop for Kafka monitoring, Topic: inventory-decrease http://localhost:9000/topic/inventory-decrease
+
+8. Seed the data base
+    8.1 run `npm install -g ts-node`
+    8.2 `ts-node src/seed.ts`
+    8.3 Verify the data base by running \dt
+    8.4 Verify inventory table by running `SELECT * FROM inventory;`
+
+
+
+## Usage
 - Make sure you are using a newer Node version, `v18.19.1` and up.
 - run npm install
 - run `docker-compose up`
